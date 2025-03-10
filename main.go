@@ -151,6 +151,10 @@ func (s Sphere) isIntersectedByRay(ro, rd Vec3f) (bool, float32) {
 }
 
 // ------------------------------
+// Camera represents a camera in 3D space.
+// position: The position of the camera in 3D space.
+// up: The up direction vector of the camera, typically used to define the camera's orientation.
+// at: The point in 3D space where the camera is looking at.
 type Camera struct {
 	position, up, at Vec3f
 }
