@@ -1,11 +1,14 @@
 package main
 
 import (
+	"flag"
 	"image"
 	"image/color"
 	"image/png"
+	"log"
 	"math"
 	"os"
+	"runtime/pprof"
 )
 
 type Image struct {
@@ -231,6 +234,17 @@ func populateScene(scene *Scene) {
 }
 
 func main() {
+	var cpuprofile = flag.String("cpuprofile", "", "write cpu profile to file")
+	flag.Parse()
+
+	if *cpuprofile != "" {
+		f, err := os.Create(*cpuprofile)
+		if err != nil {
+			log.Fatal(err)
+		}
+		pprof.StartCPUProfile(f)
+		defer pprof.StopCPUProfile()
+	}
 
 	width := 4096
 	height := 4096
