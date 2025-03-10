@@ -89,6 +89,7 @@ func (l Lambert) render(rio, rdi, n Vec3f, t float32, scene Scene) rgbRepresenta
 	// res := Mul(l.kd, scene.lights[0].color) // res := l.kd
 	// return rgbRepresentation{uint8(res.x), uint8(res.y), uint8(res.z)}
 	omega := Add(rio, rdi.mul(t))
+	omega = Add(scene.lights[0].position, omega.inverte())
 	Li := Mul(l.kd, scene.lights[0].color.mul(Dot(n, omega))).mul(1 / 3.14)
 	return rgbRepresentation{uint8(Li.x * 255), uint8(Li.y * 255), uint8(Li.z * 255)}
 }
