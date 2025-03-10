@@ -184,6 +184,7 @@ func main() {
 	//fonction de rendu
 	renderFrame(image, camera, scene)
 	//Sauvegarde de l'image
-	image.save("./result.png")
-
+	if err := image.save("./result.png"); err != nil {
+		panic(err)
+	}
 }
