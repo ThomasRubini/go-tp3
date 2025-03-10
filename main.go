@@ -59,10 +59,29 @@ type Materials interface {
 	render(rio, rdi, n Vec3f, t float32, scene Scene) rgbRepresentation
 }
 
+// Lambert represents a Lambertian reflectance model which is used in computer graphics
+// to simulate the way light reflects off a diffuse surface. The kd field represents
+// the diffuse reflection coefficient, which is a vector of three floating-point values
+// corresponding to the RGB color components.
 type Lambert struct {
 	kd Vec3f
 }
 
+// render calculates the Lambertian reflectance for a given point in the scene.
+// It takes the incoming ray direction (rio), the reflected ray direction (rdi),
+// the normal at the intersection point (n), the intersection distance (t), and
+// the scene information (scene). It returns the RGB representation of the
+// reflected light.
+//
+// Parameters:
+// - rio: Vec3f representing the incoming ray direction.
+// - rdi: Vec3f representing the reflected ray direction.
+// - n: Vec3f representing the normal at the intersection point.
+// - t: float32 representing the intersection distance.
+// - scene: Scene containing the scene information including lights.
+//
+// Returns:
+// - rgbRepresentation: The RGB representation of the reflected light.
 func (l Lambert) render(rio, rdi, n Vec3f, t float32, scene Scene) rgbRepresentation {
 	// res := Mul(l.kd, scene.lights[0].color) // res := l.kd
 	// return rgbRepresentation{uint8(res.x), uint8(res.y), uint8(res.z)}
@@ -77,12 +96,18 @@ type GeometricObject interface {
 }
 
 // -------------------------------
+// Sphere represents a 3D sphere with a specific radius, position, and material properties.
 type Sphere struct {
 	radius   float32
 	position Vec3f
 	Material Materials
 }
 
+// render calculates the color representation of a sphere when rendered in a scene.
+// It takes the incident ray origin (rio), the incident ray direction (rdi),
+// the intersection distance (t), and the scene as parameters.
+// The normal on a sphere is the inverse of the incident ray direction.
+// This function returns the RGB representation of the rendered sphere.
 func (s Sphere) render(rio, rdi Vec3f, t float32, scene Scene) rgbRepresentation {
 	/*
 	* Le calcul de la normal sur une sphère est l'inverse du rayon incident.
@@ -90,6 +115,19 @@ func (s Sphere) render(rio, rdi Vec3f, t float32, scene Scene) rgbRepresentation
 	 */
 	return s.Material.render(rio, rdi, rdi.inverte(), t, scene)
 }
+
+// isIntersectedByRay determines if a ray intersects with the sphere.
+// It takes the ray origin (ro) and ray direction (rd) as Vec3f parameters.
+// It returns a boolean indicating if there is an intersection, and a float32
+// representing the distance from the ray origin to the intersection point.
+//
+// Parameters:
+//   - ro: Vec3f representing the origin of the ray.
+//   - rd: Vec3f representing the direction of the ray.
+//
+// Returns:
+//   - bool: true if the ray intersects the sphere, false otherwise.
+//   - float32: the distance from the ray origin to the intersection point if there is an intersection, 0.0 otherwise.
 func (s Sphere) isIntersectedByRay(ro, rd Vec3f) (bool, float32) {
 	L := Add(ro, Vec3f{-s.position.x, -s.position.y, -s.position.z})
 
@@ -114,6 +152,10 @@ type Camera struct {
 	position, up, at Vec3f
 }
 
+// direction calculates the direction vector of the camera by subtracting
+// the camera's position from its target point (at), normalizing the resulting
+// vector, and returning it. The returned vector is a unit vector pointing
+// from the camera's position to its target point.
 func (c Camera) direction() Vec3f {
 	dir := Add(c.at, c.position.inverte())
 	return dir.mul(float32(1) / dir.norme())
@@ -121,6 +163,17 @@ func (c Camera) direction() Vec3f {
 
 // ------------------------------
 
+// renderPixel computes the color of a pixel by tracing a ray through the scene.
+// It iterates over all objects in the scene to find the closest intersection point
+// and then calculates the color at that point.
+//
+// Parameters:
+// - scene: The Scene containing all objects to be rendered.
+// - ro: The origin of the ray (Vec3f).
+// - rd: The direction of the ray (Vec3f).
+//
+// Returns:
+// - rgbRepresentation: The color of the pixel as an rgbRepresentation struct.
 func renderPixel(scene Scene, ro, rd Vec3f) rgbRepresentation {
 	var tmin float32
 	tmin = 9999999999.0
@@ -135,6 +188,15 @@ func renderPixel(scene Scene, ro, rd Vec3f) rgbRepresentation {
 	return res
 }
 
+// renderFrame renders a frame of the scene from the perspective of the camera onto the image.
+//
+// Parameters:
+//   - image: The Image object that contains the frame buffer where the rendered frame will be stored.
+//   - camera: The Camera object that defines the position and orientation of the camera.
+//   - scene: The Scene object that contains all the objects and lights to be rendered.
+//
+// The function calculates the ray direction for each pixel in the image based on the camera's position and orientation.
+// It then traces the ray through the scene to determine the color of the pixel and stores the result in the image's frame buffer.
 func renderFrame(image Image, camera Camera, scene Scene) {
 	ro := camera.position
 	cosFovy := float32(0.66)
