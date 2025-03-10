@@ -1,6 +1,8 @@
 package main
 
-import "math"
+import (
+	"math"
+)
 
 type Vec2f struct {
 	x, y float32
@@ -28,9 +30,16 @@ func Mul(v1, v2 Vec3f) Vec3f {
 func Dot(v1, v2 Vec3f) float32 {
 	return v1.x*v2.x + v1.y*v2.y + v1.z*v2.z
 }
+func Sub(v1, v2 Vec3f) Vec3f {
+	return Vec3f{v1.x - v2.x, v1.y - v2.y, v1.z - v2.z}
+}
 
 func cross(v1, v2 Vec3f) Vec3f {
 	return Vec3f{v1.y*v2.z - v2.y*v1.z, v1.z*v2.x - v2.z*v1.x, v1.x*v2.y - v2.x*v1.y}
+}
+
+func Pow(x, y float32) float32 {
+	return float32(math.Pow(float64(x), float64(y)))
 }
 
 // -------------------------------
