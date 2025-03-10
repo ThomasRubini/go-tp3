@@ -46,8 +46,9 @@ type Light struct {
 
 // --------------------------------
 type Scene struct {
-	objects []GeometricObject
-	lights  []Light
+	objects      []GeometricObject
+	lights       []Light
+	ambiantLight Vec3f
 }
 
 func (s *Scene) addLight(l Light) {
@@ -230,12 +231,19 @@ func renderFrame(image Image, camera Camera, scene Scene) {
 func populateScene(scene *Scene) {
 
 	//Intégrer dans l'objet Scène
-	scene.addElement(Sphere{1, Vec3f{0, 0, 8}, Lambert{Vec3f{1.0, 0, 0}}})
-	scene.addElement(Sphere{0.3, Vec3f{2, 1.5, 4}, Lambert{Vec3f{0.0, 1.0, 0}}})
-	scene.addElement(Sphere{0.9, Vec3f{0, -1, 5}, Lambert{Vec3f{0.0, 0, 1.0}}})
-	scene.addElement(Sphere{0.5, Vec3f{-2, -2, 5}, Lambert{Vec3f{1.0, 1.0, 1.0}}})
+	// scene.addElement(Sphere{1, Vec3f{0, 0, 8}, Lambert{Vec3f{1.0, 0, 0}}})
+	// scene.addElement(Sphere{0.3, Vec3f{2, 1.5, 4}, Lambert{Vec3f{0.0, 1.0, 0}}})
+	// scene.addElement(Sphere{0.9, Vec3f{0, -1, 5}, Lambert{Vec3f{0.0, 0, 1.0}}})
+	// scene.addElement(Sphere{0.5, Vec3f{-2, -2, 5}, Lambert{Vec3f{1.0, 1.0, 1.0}}})
 
-	scene.addLight(Light{Vec3f{1.0, 1.0, 1.0}, Vec3f{0, 10, 0}})
+	scene.addElement(Sphere{1, Vec3f{0, 0, 8}, Phong{
+		scene.ambiantLight,
+		Vec3f{1, 0, 0},
+		Vec3f{1, 1, 1},
+		3,
+	}})
+
+	scene.addLight(Light{Vec3f{1.0, 1.0, 1.0}, Vec3f{0, 10, 5}})
 }
 
 func main() {
